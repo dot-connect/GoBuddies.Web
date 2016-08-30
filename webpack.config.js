@@ -26,7 +26,8 @@ var DEFAULT_PARAMS = {
     },
     module: {
         loaders: [
-            {test: /\.tsx?$/, loader: 'react-hot!ts-loader?jsx=true', exclude: /(\.test.ts$|node_modules)/},
+            { test: /\.tsx?$/, loader: 'react-hot!ts-loader?jsx=true', exclude: /(\.test.ts$|node_modules)/ },
+            { test: /\.less$/, loader: "style!css!less" },
             {test: /\.css$/, loader: 'style!css'},
             {test: /\.tpl.html/, loader: 'html'},
             {test: /\.(ico|png|jpg|gif|svg|eot|ttf|woff|woff2)(\?.+)?$/, loader: 'url?limit=50000'}
@@ -115,11 +116,11 @@ function _mergeArraysCustomizer(a, b) {
 }
 
 function _bootswatchWorkaround() {
-	var extensions = ['eot', 'woff', 'woff2', 'ttf', 'svg'];
+    var extensions = ['eot', 'woff', 'woff2', 'ttf', 'svg'];
 	
-	return extensions.map(function(ext) {
-		var regexp = new RegExp('^\.\.\/fonts\/glyphicons-halflings-regular\.' + ext + '$');
-		var dest = 'bootswatch/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.' + ext;
-		return new webpack.NormalModuleReplacementPlugin(regexp, dest);
-	});
+    return extensions.map(function (ext) {
+        var regexp = new RegExp('^\.\.\/fonts\/glyphicons-halflings-regular\.' + ext + '$');
+        var dest = 'bootswatch/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.' + ext;
+        return new webpack.NormalModuleReplacementPlugin(regexp, dest);
+    });
 }

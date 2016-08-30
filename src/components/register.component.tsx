@@ -16,7 +16,6 @@ const style = {
 export class RegisterComponent extends React.Component<IRegisterComponentProps, IRegisterComponentState> {
     private userService: Services.UserService;
 
-
     private controls: {
         fistNameField: TextField,
         lastNameField: TextField,
@@ -30,7 +29,7 @@ export class RegisterComponent extends React.Component<IRegisterComponentProps, 
                 
         this.userService = new Services.UserService();
 
-        this.onFieldChanges = this.onFieldChanges.bind(this);
+        this.onFieldChanged = this.onFieldChanged.bind(this);
         this.register = this.register.bind(this);
 
         this.controls = {
@@ -49,7 +48,7 @@ export class RegisterComponent extends React.Component<IRegisterComponentProps, 
         };
     }
 
-    private onFieldChanges(data: any): void {
+    private onFieldChanged(data: any): void {
         this.validate();
     }
 
@@ -119,29 +118,29 @@ export class RegisterComponent extends React.Component<IRegisterComponentProps, 
                     <div>
                         <TextField hintText="Email address"
                             style={style}
-                            onChange={this.onFieldChanges}
+                            onChange={this.onFieldChanged}
                             ref={input => this.controls.emailField = input}/>
                     </div>
                     <div>
                         <TextField hintText="Password"
                             style={style}
                             type="password"
-                            onChange={this.onFieldChanges}
+                            onChange={this.onFieldChanged}
                             ref={input => this.controls.passwordField = input}/>
                         <TextField hintText="Retype Password"
                             style={style}
                             type="password"
-                            onChange={this.onFieldChanges}
+                            onChange={this.onFieldChanged}
                             ref={input => this.controls.confirmPasswordField = input}/>
                     </div>
                     <div>
                         <TextField hintText="First name"
                             style={style}
-                            onChange={this.onFieldChanges}
+                            onChange={this.onFieldChanged}
                             ref={input => this.controls.fistNameField = input}/>
                         <TextField hintText="Last name"
                             style={style}
-                            onChange={this.onFieldChanges}
+                            onChange={this.onFieldChanged}
                             ref={input => this.controls.lastNameField = input}/>
                     </div>
                     <div>
