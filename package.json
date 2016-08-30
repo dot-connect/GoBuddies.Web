@@ -1,0 +1,69 @@
+{
+  "name": "react-typescript-webpack",
+  "version": "1.0.0",
+  "description": "Seed for building React app using Typescript and Webpack",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "webpack-dev-server --inline --hot --TARGET=DEV",
+    "build": "webpack && node server.js",
+    "dist": "webpack --TARGET=DIST && node server.js --TARGET=DIST",
+    "ci": "npm run test && webpack",
+    "lint": "tslint src/**/*.ts",
+    "test": "npm run lint"
+  },
+  "dependencies": {
+    "lodash": "4.15.0",
+    "bootswatch": "3.3.7",
+    "font-awesome": "4.4.0",
+    "history": "1.17",
+    "material-ui": "0.15.4",
+    "react": "15.3.1",
+    "react-addons-create-fragment": "15.3.1",
+    "react-addons-pure-render-mixin": "15.3.1",
+    "react-addons-transition-group": "15.3.1",
+    "react-addons-update": "15.3.1",
+    "react-bootstrap": "0.30.3",
+    "react-dom": "15.3.1",
+    "react-router": "2.7.0",
+    "react-tap-event-plugin": "1.0.0",
+    "rxjs-es": "5.0.0-beta.11",
+    "whatwg-fetch":"1.0.0"
+  },
+  "devDependencies": {
+    "chalk": "1.1.1",
+    "clean-webpack-plugin": "0.1.3",
+    "connect": "3.4.0",
+    "css-loader": "0.20.1",
+    "file-loader": "0.8.4",
+    "html-webpack-plugin": "1.6.2",
+    "minimist": "1.2.0",
+    "open-browser-webpack-plugin": "0.0.1",
+    "react-hot-loader": "1.3.0",
+    "style-loader": "0.12.4",
+    "svg-loader": "0.0.2",
+    "ts-loader": "0.7.2",
+    "tslint": "3.2.1",
+    "typescript": "1.8.10",
+    "url-loader": "0.5.6",
+    "webpack": "1.12.2",
+    "webpack-dev-server": "1.12.0",
+    "webpack-node-externals": "^1.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomastrajan/react-typescript-webpack.git"
+  },
+  "keywords": [
+    "react",
+    "webpack",
+    "typescript",
+    "seed",
+    "flux"
+  ],
+  "author": "Tomas Trajan <tomas.trajan@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tomastrajan/react-typescript-webpack/issues"
+  },
+  "homepage": "https://github.com/tomastrajan/react-typescript-webpack#readme"
+}

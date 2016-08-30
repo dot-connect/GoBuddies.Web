@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES6",
+    "sourceMap": true,
+    "jsx": "react"
+  },
+  "files": [
+    "typings/index.d.ts",
+
+    "src/main.tsx",
+
+    "src/components/login.component.tsx",
+    "src/components/register.component.tsx"
+
+  ],
+  "filesGlob": [
+    "src/**/*.tsx",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules/**/*.*",
+    "typings/index.d.ts"
+  ]
+}

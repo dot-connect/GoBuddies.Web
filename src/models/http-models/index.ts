@@ -1,0 +1,1 @@
+export {IRegisterModel} from './register.http-model';
