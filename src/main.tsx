@@ -16,9 +16,9 @@ const App = () => (
     <MuiThemeProvider>
         <Router history={browserHistory} >
             <Route path="/" component={MainComponent}>
-                <IndexRoute component={Components.LoginComponent}/>
-                <Route path="/login" component={Components.LoginComponent}/>
-                <Route path="/register" component={Components.RegisterComponent}/>
+                <IndexRoute component={Components.HomeComponent}/>
+                <Route path="login" component={Components.LoginComponent}/>
+                <Route path="register" component={Components.RegisterComponent}/>
             </Route>
         </Router>
     </MuiThemeProvider>
@@ -26,4 +26,4 @@ const App = () => (
 
 ReactDOM.render((
     <App/>
-), document.getElementById('content'));
+), document.getElementById("content"));

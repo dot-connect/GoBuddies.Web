@@ -64,7 +64,7 @@ export class RegisterComponent extends React.Component<IRegisterComponentProps, 
             confirmPassword: this.controls.confirmPasswordField.getValue()
         };
 
-        var result: Common.Web.Models.IResponse = await this.userService.register(data);
+        var result: Common.Client.Models.IResponse = await this.userService.register(data);
         if (result.isOk && result.code !== "200") {
             this.setState({
                 description: result.value.join("\n"),

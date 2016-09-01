@@ -1,5 +1,5 @@
-import * as Web from './web'; 
+import * as Client from './client'
 
 export {
-    Web
+    Client
 };

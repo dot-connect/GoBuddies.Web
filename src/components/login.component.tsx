@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as HttpModels from '../models/http-models/index';
 import * as Services from '../services';
 import * as Common from '../common';
+import * as CommonClientModels from '../common/client/models';
 
 import Divider from 'material-ui/Divider';
 import Paper from 'material-ui/Paper';
@@ -28,6 +29,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, ILogin
         this.userService = new Services.UserService();
 
         this.login = this.login.bind(this);
+        this.a = this.a.bind(this);
         
         this.controls = {
             emailField: null,
@@ -42,17 +44,22 @@ export class LoginComponent extends React.Component<ILoginComponentProps, ILogin
         };
     }
 
+    a() {
+        this.login();
+    }
+
     private async login(): Promise<void> {
         if (!this.validate()) {
             return;
         }
 
+        // Common.Client.Services.UiService.ShowMessageBox("Loading...", "haha", CommonClientModels.DialogButtonOptions.Ok | CommonClientModels.DialogButtonOptions.Cancel);
         var data: HttpModels.ILoginModel = {
             email: this.controls.emailField.getValue(),
             password: this.controls.passwordField.getValue(),
         };
 
-        var result: Common.Web.Models.IResponse = await this.userService.login(data);
+        var result: Common.Client.Models.IResponse = await this.userService.login(data);
         if (result.isOk && result.code !== "200") {
             this.setState({
                 description: result.value.join("\n"),

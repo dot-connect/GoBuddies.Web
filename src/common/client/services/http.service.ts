@@ -1,4 +1,4 @@
-import * as Common from '../common';
+import * as Models from '../models';
 
 export class HttpClient {
     public static get(uri: string, data?: any) {
@@ -9,7 +9,7 @@ export class HttpClient {
         fetch(uri, request);
     }
 
-    public static async  post(uri: string, data?: any): Promise<Common.Web.Models.IResponse> {
+    public static async  post(uri: string, data?: any): Promise<Models.IResponse> {
         var request: RequestInit = {
             method: "post",
             mode: "cors",
@@ -23,7 +23,7 @@ export class HttpClient {
 
         var result: Response = await fetch(uri, request);
         if (result.ok) {
-            var jsonData: Common.Web.Models.IResponse = await result.json();
+            var jsonData: Models.IResponse = await result.json();
             return jsonData;
         }
     }
