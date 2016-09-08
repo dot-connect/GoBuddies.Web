@@ -1,0 +1,52 @@
+.react-carousel, .react-carousel .rc-btn, .react-carousel .rc-viewport, .react-carousel .rc-viewport .rc-viewport-wrapper, .react-carousel .rc-item {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+
+.react-carousel {
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  height: 32px;
+  line-height: 32px;
+  width: 100%;
+  background: transparent; }
+  .react-carousel .rc-btn {
+    position: absolute;
+    top: 0px;
+    height: 32px;
+    width: 42px;
+    cursor: pointer;
+    text-align: center; }
+    .react-carousel .rc-btn.prev {
+      left: 0px; }
+    .react-carousel .rc-btn.next {
+      right: 0px; }
+  .react-carousel .rc-viewport {
+    position: absolute;
+    height: 32px;
+    line-height: 32px;
+    overflow: hidden;
+    left: 42px;
+    right: 42px;
+    background: transparent; }
+    .react-carousel .rc-viewport .rc-viewport-wrapper {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      height: 100%;
+      -webkit-transition: transform 0.7s cubic-bezier(0, 0, 0, 1);
+      -o-transition: transform 0.7s cubic-bezier(0, 0, 0, 1);
+      transition: transform 0.7s cubic-bezier(0, 0, 0, 1); }
+  .react-carousel .rc-item {
+    position: relative;
+    height: 100%;
+    float: left;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    cursor: pointer; }
+
+/*# sourceMappingURL=react-carousel.css.map */

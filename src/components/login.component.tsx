@@ -29,7 +29,6 @@ export class LoginComponent extends React.Component<ILoginComponentProps, ILogin
         this.userService = new Services.UserService();
 
         this.login = this.login.bind(this);
-        this.a = this.a.bind(this);
         
         this.controls = {
             emailField: null,
@@ -42,10 +41,6 @@ export class LoginComponent extends React.Component<ILoginComponentProps, ILogin
             valid: false,
             description: ''
         };
-    }
-
-    a() {
-        this.login();
     }
 
     private async login(): Promise<void> {

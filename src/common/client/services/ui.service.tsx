@@ -8,10 +8,10 @@ import * as Models from '../models';
 import * as Ui from '../ui';
 
 export class UiService {
-    private static modal: Ui.Modal;
+    // private static modal: Ui.Modal;
 
-    public static setModal(modal: Ui.Modal) {
-        UiService.modal = modal;
+    public static setModal(modal: any) {
+        // UiService.modal = modal;
     }
 
     public static ShowModal(caption?: string): void {
@@ -19,10 +19,10 @@ export class UiService {
     }
 
     public static ShowMessageBox(message: string, caption?: string, buttonOptions?: Models.DialogButtonOptions) {
-        if (UiService.modal.state.isOpen) {
-            return;
-        }
+        // if (UiService.modal.state.isOpen) {
+        //     return;
+        // }
         
-        UiService.modal.openModal();
+        // UiService.modal.openModal();
     }
 }

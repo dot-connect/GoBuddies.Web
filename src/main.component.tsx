@@ -11,7 +11,7 @@ import * as Common from './common';
 export default class MainComponent extends React.Component<{ children: any }, {}> {
 
     private controls: {
-        modal: Common.Client.Ui.Modal
+        // modal: Common.Client.Ui.Modal
     }
 
     constructor(props) {
@@ -23,18 +23,19 @@ export default class MainComponent extends React.Component<{ children: any }, {}
     }    
 
     componentDidMount() {
-        Common.Client.Services.UiService.setModal(this.controls.modal);
+        // Common.Client.Services.UiService.setModal(this.controls.modal);
     }
 
     render() {
         return(            
             <div>
                 <br />
-                <Link to='/login'>Login</Link>&nbsp;
+                <Link to='/'>Home</Link>
+                <Link to='/login'>Login</Link>
                 <Link to='/register'>Register</Link>
+                <Link to='/activity'>Activities</Link>
                 <br />
                 <div className="container">
-                    <Common.Client.Ui.Modal ref={modal => this.controls.modal = modal}/>
                     {this.props.children}
                 </div>
             </div>

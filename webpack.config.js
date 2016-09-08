@@ -7,11 +7,19 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var OpenBrowserWebpackPlugin = require('open-browser-webpack-plugin');
 
+// var path = require('path');
+// var node_modules = path.resolve(__dirname, 'node_modules');
+// var pathToRx = path.resolve(node_modules, 'react-dom/dist/react-dom.min.js');
+
 var DEFAULT_TARGET = 'BUILD';
 
 var DEFAULT_PARAMS = {
     resolve: {
-        extensions: ['', '.ts', '.tsx', '.js']
+        extensions: ['', '.js', '.jsx', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.css'],
+        modulesDirectories: ['web_modules', 'node_modules']
+        // alias: {
+        //     'rxjs-es': require.resolve('rxjs-es/rx')
+        // }
     },
     entry: {
         main: './src/main.tsx'
@@ -26,7 +34,8 @@ var DEFAULT_PARAMS = {
     },
     module: {
         loaders: [
-            { test: /\.tsx?$/, loader: 'react-hot!ts-loader?jsx=true', exclude: /(\.test.ts$|node_modules)/ },
+            // { test: /\.tsx?$/, loader: 'react-hot!ts-loader?jsx=true', exclude: /(\.test.ts$|node_modules)/ },
+            { test: /\.tsx?$/, loader: 'babel-loader!ts-loader' },
             { test: /\.less$/, loader: "style!css!less" },
             {test: /\.css$/, loader: 'style!css'},
             {test: /\.tpl.html/, loader: 'html'},

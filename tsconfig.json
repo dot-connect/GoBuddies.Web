@@ -7,7 +7,6 @@
   },
   "files": [
     "typings/index.d.ts",
-
     "src/main.tsx",
 
     "src/components/login.component.tsx",
