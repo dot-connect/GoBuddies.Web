@@ -97,7 +97,7 @@ export class ActivityComponent extends React.Component<IActivityComponentProps, 
 }
 
 interface IActivityComponentProps{
-    activities: Array<Models.IActivity>
+    activities?: Array<Models.IActivity>
 }
 
 interface IActivityComponentState{

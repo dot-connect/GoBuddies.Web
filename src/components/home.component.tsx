@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as Components from './';
 
 export class HomeComponent extends React.Component<IHomeComponentProps, IHomeComponentState> { 
     constructor(props) {
@@ -7,7 +8,9 @@ export class HomeComponent extends React.Component<IHomeComponentProps, IHomeCom
 
     render() {
         return (
-            <div>haha</div>
+            <div>
+                <Components.ActivityComponent />
+            </div>
         );
     }    
 }

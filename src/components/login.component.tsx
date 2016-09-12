@@ -98,7 +98,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, ILogin
             <div style={{display: "inline"}}>
                 <div className="block-item-div">
                     <div className="block-item-div">
-                        <TextField hintText="Email address"
+                        <TextField hintText="Email"
                             ref={input => this.controls.emailField = input}
                             style={{ display: "inherit", width: ""}}/>
                     </div>

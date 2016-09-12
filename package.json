@@ -1,7 +1,7 @@
 {
-  "name": "react-typescript-webpack",
+  "name": "Go-Buddies",
   "version": "1.0.0",
-  "description": "Seed for building React app using Typescript and Webpack",
+  "description": "Socail network for activities",
   "main": "src/main.js",
   "scripts": {
     "start": "webpack-dev-server --inline --hot --TARGET=DEV",
@@ -11,7 +11,7 @@
     "lint": "tslint src/**/*.ts",
     "test": "npm run lint"
   },
-  "dependencies": {
+  "dependencies":{
     "bootswatch": "3.3.7",
     "font-awesome": "4.4.0",
     "history": "1.17",
@@ -60,7 +60,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tomastrajan/react-typescript-webpack.git"
+    "url": "git+https://github.com/dot-connect/GoBuddies.Web.git"
   },
   "keywords": [
     "react",
@@ -69,10 +69,10 @@
     "seed",
     "flux"
   ],
-  "author": "Tomas Trajan <tomas.trajan@gmail.com>",
-  "license": "MIT",
+  "author": "Mr.Hung@outlook.com",
+  "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/tomastrajan/react-typescript-webpack/issues"
+    "url": "https://github.com/dot-connect/GoBuddies.Web/issues"
   },
-  "homepage": "https://github.com/tomastrajan/react-typescript-webpack#readme"
+  "homepage": "https://github.com/dot-connect/GoBuddies.Web/blob/master/README.md"
 }

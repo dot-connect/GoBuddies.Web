@@ -1,6 +1,11 @@
 @import './colors.less';
 @import './fonts.less';
 
+body {
+    margin: 0px;
+    display: block;
+}
+
 .content {
     width: 90%;
     /*padding-top: 10px;*/
@@ -37,9 +42,22 @@
     background: inherit;
 }
 
+.column-div {
+    -webkit-min-width: 300px;
+    min-width: 300px; 
+    glyph-orientation-horizontal: inherit;
+    float: left;
+    background: inherit;
+    display: inline-block
+}
+
 .hint {
     line-height: 22px;
     color: @hint-foreground;
     .hint-font();
     white-space: pre-wrap
+}
+
+label {
+    font-family: 'Roboto,sans-serif'
 }
