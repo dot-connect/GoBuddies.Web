@@ -1,24 +1,28 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "lib": ["es6", "dom"],
+    "types": ["reflect-metadata"],
     "target": "ES6",
     "sourceMap": true,
-    "jsx": "react"
+    "jsx": "react",
+    "noImplicitAny": false,
+    "removeComments": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "files": [
     "typings/index.d.ts",
-    "src/main.tsx",
-
-    "src/components/login.component.tsx",
-    "src/components/register.component.tsx"
-
+    "App/main.tsx",
+    "App/**/*.ts",
+    "App/**/*.tsx"
   ],
   "filesGlob": [
-    "src/**/*.tsx",
-    "src/**/*.ts"
+    "App/**/*.tsx",
+    "App/**/*.ts"
   ],
   "exclude": [
-    "node_modules/**/*.*",
+      "node_modules/**/*.*",
     "typings/index.d.ts"
   ]
 }

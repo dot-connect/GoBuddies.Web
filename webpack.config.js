@@ -1,135 +1,86 @@
-var _ = require('lodash');
-var minimist = require('minimist');
-var chalk = require('chalk');
+var path = require("path");
 var webpack = require('webpack');
 
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var CleanWebpackPlugin = require('clean-webpack-plugin');
-var OpenBrowserWebpackPlugin = require('open-browser-webpack-plugin');
+var nodeModulesPath = path.join(__dirname, 'node_modules');
+var isProduction = process.env.NODE_ENV == "production";
 
-// var path = require('path');
-// var node_modules = path.resolve(__dirname, 'node_modules');
-// var pathToRx = path.resolve(node_modules, 'react-dom/dist/react-dom.min.js');
+var config = {
+  // entry points - each will produce one bundled js file and one css file if there is any css in dependency tree
+  entry: {
+    vendors: [
+      'react',
+      'react-dom',
+      'babel-polyfill',
+       path.join(__dirname, 'babel', 'babelhelpers.js'),
+       path.join(__dirname, 'babel', 'babelOldIE.js'),
+    ],
+    app: [
+      path.join(__dirname, 'App', 'main.tsx')
+    ]
+  },
 
-var DEFAULT_TARGET = 'BUILD';
+  // This is path to loaders
+  resolveLoader: {
+    root: nodeModulesPath
+  },
 
-var DEFAULT_PARAMS = {
-    resolve: {
-        extensions: ['', '.js', '.jsx', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.css'],
-        modulesDirectories: ['web_modules', 'node_modules']
-        // alias: {
-        //     'rxjs-es': require.resolve('rxjs-es/rx')
-        // }
-    },
-    entry: {
-        main: './src/main.tsx'
-    },
-    output: {
-        publicPath: '',
-        filename: '[name].[chunkhash].js',
-        sourceMapFilename: '[name].[chunkhash].map'
-    },
-    externals: {
-        'auth0-lock': 'Auth0Lock'
-    },
-    module: {
-        loaders: [
-            // { test: /\.tsx?$/, loader: 'react-hot!ts-loader?jsx=true', exclude: /(\.test.ts$|node_modules)/ },
-            { test: /\.tsx?$/, loader: 'babel-loader!ts-loader' },
-            { test: /\.less$/, loader: "style!css!less" },
-            {test: /\.css$/, loader: 'style!css'},
-            {test: /\.tpl.html/, loader: 'html'},
-            {test: /\.(ico|png|jpg|gif|svg|eot|ttf|woff|woff2)(\?.+)?$/, loader: 'url?limit=50000'}
-        ]
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: './src/index.html',
-            inject: 'body'
-        }),
-        new webpack.optimize.DedupePlugin()
-    ].concat(_bootswatchWorkaround()),
-    devServer: {
-        contentBase: 'dev/',
-        port: 8081
-    },
-    debug: true,
-    progress: true,
-    colors: true
+  resolve: {
+    extensions: ['', '.js', '.jsx', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.css', '.less'], 
+    alias: {
+       'react$': path.join(nodeModulesPath, 'react', 'react.js'),
+       'react-dom': path.join(nodeModulesPath, 'react-dom', 'index.js'),
+       'babel-polyfill': path.join(nodeModulesPath, 'babel-polyfill', 'lib', 'index.js'),
+    }
+  },
+
+  output: {
+      path: path.join(__dirname, 'build'),
+      filename: '[name]_[chunkhash].js'
+  },
+ 
+  module: {
+    preLoaders: [
+      { test: /\.tsx?$/, loader: "tslint", include: path.resolve(__dirname, "App") },
+    ],
+    noParse: [],
+    loaders: [
+      // TODO remove crazy require when https://github.com/babel/babel-loader/issues/166 is fixed.
+      {
+        test: /\.tsx?$/,
+        loader: 'babel?cacheDirectory,plugins[]=' + require.resolve(path.join(nodeModulesPath, 'babel-plugin-external-helpers-2')) +
+                ',presets[]=' + require.resolve(path.join(nodeModulesPath, 'babel-preset-es2015-loose')) +
+                '!ts-loader?configFileName=tsconfig.webpack.json',
+        include: path.resolve(__dirname, "App")
+      },
+      { test: /\.css$/,  loader: "style-loader!css-loader?minimize", include: path.resolve(__dirname, "App") },
+      { test: /\.less$/, exclude: /\.module\.less$/, loader: "style-loader!css-loader?minimize!less-loader?compress", include: path.resolve(__dirname, "App") },
+      { test: /\.module\.less$/,
+        loader: "style-loader!css-loader?minimize&modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!less-loader?-compress",
+        include: path.resolve(__dirname, "App") },
+      { test: /\.(jpg|png|woff|eot|ttf|svg|gif)$/, loader: "file-loader?name=[name]_[hash].[ext]", include: path.resolve(__dirname, "App") }
+    ]
+  },
+
+  plugins: [
+    new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors_[chunkhash].js')
+  ],
+
+  tslint: {
+    // Rules are in tslint.json
+    emitErrors: false, // false = WARNING for webpack, true = ERROR for webpack
+    formattersDirectory: path.join(nodeModulesPath, 'tslint-loader', 'formatters')
+  },
 };
 
-var PARAMS_PER_TARGET = {
-
-    DEV: {
-        devtool: 'inline-source-map',
-        output: {
-            filename: '[name].js'
-        },
-        plugins: [
-            new OpenBrowserWebpackPlugin({ url: 'http://localhost:8081/' })
-        ]
-    },
-
-    BUILD: {
-        output: {
-            path: './build'
-        },
-        devtool: 'source-map',
-        plugins: [
-            new CleanWebpackPlugin(['build'])
-        ]
-    },
-
-    DIST: {
-        debug: false,
-        output: {
-            path: './dist'
-        },
-        plugins: [
-            new CleanWebpackPlugin(['dist']),
-            new webpack.optimize.UglifyJsPlugin()
-        ]
+if (isProduction) {
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+     compress: {
+        warnings: false
     }
-
-};
-
-var target = _resolveBuildTarget(DEFAULT_TARGET);
-var params = _.merge(DEFAULT_PARAMS, PARAMS_PER_TARGET[target], _mergeArraysCustomizer);
-
-_printBuildInfo(target, params);
-
-module.exports = params;
-
-function _resolveBuildTarget(defaultTarget) {
-    var target = minimist(process.argv.slice(2)).TARGET;
-    if (!target) {
-        console.log('No build target provided, using default target instead\n\n');
-        target = defaultTarget;
-    }
-    return target;
+  }));
+  config.plugins.push(new webpack.DefinePlugin({
+    'process.env': {NODE_ENV: '"production"'}
+  }));
 }
 
-function _printBuildInfo(target, params) {
-    console.log('\nStarting ' + chalk.bold.green('"' + target + '"') + ' build');
-    if (target === 'DEV') {
-        console.log('Dev server: ' + chalk.bold.yellow('http://localhost:' + params.devServer.port) + '\n\n');
-    } else {
-        console.log('\n\n');
-    }
-}
-
-function _mergeArraysCustomizer(a, b) {
-    if (_.isArray(a)) {
-        return a.concat(b);
-    }
-}
-
-function _bootswatchWorkaround() {
-    var extensions = ['eot', 'woff', 'woff2', 'ttf', 'svg'];
-	
-    return extensions.map(function (ext) {
-        var regexp = new RegExp('^\.\.\/fonts\/glyphicons-halflings-regular\.' + ext + '$');
-        var dest = 'bootswatch/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.' + ext;
-        return new webpack.NormalModuleReplacementPlugin(regexp, dest);
-    });
-}
+module.exports = config;

@@ -1,0 +1,10 @@
+export {RegisterComponent} from "./register.component";
+export {RegisterStepperComponent} from "./register-stepper.component";
+export {LoginComponent} from "./login.component";
+export {HomeComponent} from "./home.component";
+export {ActivityComponent} from "./activity.component";
+export {ActivityDetailComponent} from "./activity-detail.component";
+export {SearchComponent} from "./search.component";
+export {ToolBarComponent} from "./tool-bar.component";
+export {CodeValidationComponent} from "./code-validation.component";
+export { QuickAccessComponent} from "./quick-access.component";

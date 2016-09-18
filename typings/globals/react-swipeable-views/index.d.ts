@@ -26,39 +26,7 @@ declare namespace ReactSwipeableViews {
     export class SwipeableViews extends React.Component<SwipeableViewsProps, SwipeableViewsState> {
     }
 
-    export class AutotPlay extends React.Component<AutoPlayProps, {}>{ 
-
-    }
-
-    interface AutoPlayProps extends React.Props<AutotPlay>{
-/**
- *
-       * If `false`, the auto play behavior is disabled.
-       */
-      autoplay?: boolean
-      /**
-       * This is the auto play direction.
-       */
-      direction?: "incremental" | "decremental";
-      /**
-       * @ignore
-       */
-      index?: number,
-      /**
-       * Delay between auto play transitions (in ms).
-       */
-      interval?: number,
-      /**
-       * @ignore
-       */
-      onChangeIndex?: Function,
-      /**
-       * @ignore
-       */
-      onSwitching?: Function,
-    }
-
-    var autoPlay: (component: any) => any;    
+     var autoPlay: (component: any) => any;
 }
 
 declare module 'react-swipeable-views' {
