@@ -1,5 +1,6 @@
 /// <reference path="globals/lodash/index.d.ts" />
 /// <reference path="globals/material-ui/index.d.ts" />
+/// <reference path="globals/node/index.d.ts" />
 /// <reference path="globals/react-dom/index.d.ts" />
 /// <reference path="globals/react-modal/index.d.ts" />
 /// <reference path="globals/react-router/history/index.d.ts" />

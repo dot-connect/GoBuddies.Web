@@ -1,20 +1,20 @@
-import * as React from 'react';
-import * as Rx from 'rxjs';
+import * as React from "react";
+import * as Rx from "rxjs";
 
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import ExpandTransition from 'material-ui/internal/ExpandTransition';
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
+import SelectField from "material-ui/SelectField";
+import MenuItem from "material-ui/MenuItem";
+import ExpandTransition from "material-ui/internal/ExpandTransition";
+import RaisedButton from "material-ui/RaisedButton";
+import TextField from "material-ui/TextField";
 
-import * as Models from '../models/models';
+import * as Models from "../models/models";
 
-export class CodeValidationComponent extends React.Component<ICodeValidationComponentProps, ICodeValidationComponentState>{
+export class CodeValidationComponent extends React.Component<ICodeValidationComponentProps, ICodeValidationComponentState> {
     private validationMethod: Rx.BehaviorSubject<Models.validationMethod>;
 
     private controls: {
         validationCodeField: TextField;
-    }
+    };
 
     constructor(props) {
         super(props);
@@ -53,7 +53,7 @@ export class CodeValidationComponent extends React.Component<ICodeValidationComp
     }
 
     onValidationCodeFieldChange = () => {
-        this.setState({ isSubmitCodeBntDisable: this.controls.validationCodeField.getValue() == null || this.controls.validationCodeField.getValue() == "" });
+        this.setState({ isSubmitCodeBntDisable: this.controls.validationCodeField.getValue() == null || this.controls.validationCodeField.getValue() === "" });
     }
 
     onRequestNewValidationCodeBntTap = () => {
@@ -71,11 +71,11 @@ export class CodeValidationComponent extends React.Component<ICodeValidationComp
     private renderVlidationMethods(): Array<JSX.Element> {
         var items: Array<JSX.Element> = new Array<JSX.Element>();
         if (this.props.email) {
-            items.push(<MenuItem value={'email'} key={1} primaryText={'Email'} />);
+            items.push(<MenuItem value={"email"} key={1} primaryText={"Email"} />);
         }
 
         if (this.props.smsNumber) {
-            items.push(<MenuItem value={'sms'} key={2} primaryText={'Sms'} />);
+            items.push(<MenuItem value={"sms"} key={2} primaryText={"Sms"} />);
         }
 
         return items;
@@ -88,7 +88,7 @@ export class CodeValidationComponent extends React.Component<ICodeValidationComp
     }
 
     private renderValidationMethodContent(validationMethod: Models.validationMethod): JSX.Element {
-        if (validationMethod == "email") {
+        if (validationMethod === "email") {
             return (
                 <div className="col-group">
                     <div className="col-12" style={{ marginTop: "8px" }}>
@@ -110,7 +110,7 @@ export class CodeValidationComponent extends React.Component<ICodeValidationComp
             );
         }
 
-        if (validationMethod == "sms") {
+        if (validationMethod === "sms") {
             return (
                 <div className="col-group">
                     <div className="col-12" style={{ marginTop: "8px" }}>

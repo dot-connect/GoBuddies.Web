@@ -8,7 +8,6 @@ import {Tabs, Tab} from "material-ui/Tabs";
 
 import * as Models from "../models/models";
 import * as Services from "../services";
-import * as Common from "../common";
 
 export class ActivityDetailComponent extends React.Component<IActivityDetailComponentProps, IActivityDetailComponentState> {
     private activityId: string;
@@ -40,7 +39,7 @@ export class ActivityDetailComponent extends React.Component<IActivityDetailComp
     }
 
     private onActivityLoaded(activity: Models.IActivity) {
-        var cards = this.getCardsFromMediaActivites(activity.mediaItems);
+        var cards: Array<JSX.Element> = this.getCardsFromMediaActivites(activity.mediaItems);
         this.setState({ mediaCards: cards });
     }
 
@@ -59,14 +58,13 @@ export class ActivityDetailComponent extends React.Component<IActivityDetailComp
         }
 
         return cards;
-    }
-    
+    }    
 
     private handleInfoTabActive(index: number) {
         this.setState({ infoTabSelectIndex: index });
     }
 
-    render() {
+    render(): JSX.Element {
         const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
         
         return (

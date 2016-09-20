@@ -8,4 +8,8 @@ export class ClientService {
     public constructor() {
         this.isAuthenticated = new Rx.BehaviorSubject<boolean>(false);
     }
+
+    public login(){
+        
+    }
 }

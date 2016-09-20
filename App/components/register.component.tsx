@@ -1,8 +1,6 @@
 import * as React from "react";
 import * as Rx from "rxjs";
 
-import Divider from "material-ui/Divider";
-import Paper from "material-ui/Paper";
 import TextField from "material-ui/TextField";
 import RaisedButton from "material-ui/RaisedButton";
 import DatePicker from "material-ui/DatePicker";

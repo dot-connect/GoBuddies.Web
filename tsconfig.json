@@ -11,11 +11,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "files": [
+ "files": [
     "typings/index.d.ts",
-    "App/main.tsx",
-    "App/**/*.ts",
-    "App/**/*.tsx"
+    "App/main.tsx"
   ],
   "filesGlob": [
     "App/**/*.tsx",
