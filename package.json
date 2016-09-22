@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --watch"
   },
   "dependencies": {
     "bootswatch": "3.3.7",
@@ -32,7 +33,9 @@
     "react-tap-event-plugin": "1.0.0",
     "reflect-metadata": "^0.1.8",
     "rxjs": "5.0.0-beta.12",
-    "whatwg-fetch": "1.0.0"
+    "whatwg-fetch": "1.0.0",
+    "draft-js":"0.9.1",
+    "immutable":"3.8.1"
   },
   "devDependencies": {
     "babel": "~6.5.2",

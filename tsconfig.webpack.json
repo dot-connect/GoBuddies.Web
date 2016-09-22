@@ -9,7 +9,8 @@
     "noImplicitAny": false,
     "removeComments": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "outDir": "bin"
   },
   "files": [
     "typings/index.d.ts",
