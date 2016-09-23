@@ -1,6 +1,6 @@
-import {
-    EditorState
-} from "draft-js";
+import { EditorState } from "draft-js";
+
+import { EditorCore } from "./EditorCore/editor";
 
 export interface Plugin {
     name: string;
@@ -20,5 +20,6 @@ export interface Plugin {
 }
 
 export interface ITextProvider {
-    exportText(editorState: EditorState, encode: boolean): string;
+    export(editor: EditorCore, encode: boolean): string;
+    encode(input: string): string;
 }

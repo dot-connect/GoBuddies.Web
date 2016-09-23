@@ -13,13 +13,8 @@ console.error = (function() {
 })();
 /*eslint-enable*/
 
-const EditorCorePublic = {
+export  {
   EditorCore,
-  GetText: EditorCore.GetText,
-  GetHTML: EditorCore.GetHTML,
-  toEditorState: EditorCore.ToEditorState,
   Plugin,
   Toolbar
 };
-
-export default EditorCorePublic;

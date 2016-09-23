@@ -1,26 +1,27 @@
 /// <reference path="../draftExt.d.ts" />
 
 import * as React from "react";
+import * as ReactDom from "react-dom";
 import {
   Editor,
   EditorState,
   ContentState,
   CompositeDecorator,
-  Entity,
-  Modifier,
   getDefaultKeyBinding,
   KeyBindingUtil,
   DefaultDraftBlockRenderMap,
-  DraftBlockRenderConfig
+  DraftBlockRenderConfig,
+  ContentBlock
 } from "draft-js";
+
+import Paper from 'material-ui/Paper';
 
 import { objectAssign } from "object-assign";
 import { List, Map } from "immutable";
 import { createToolbar } from "../Toolbar";
 import ConfigStore from "./ConfigStore";
-import GetHTML from "./export/getHTML";
-import exportText, { decodeContent } from "./export/exportText";
-import { Plugin } from "../interface"
+import { Plugin } from "../interface";
+import { EditorService } from "../services";
 
 const { hasCommandModifier } = KeyBindingUtil;
 
@@ -53,45 +54,35 @@ export interface EditorCoreState {
   compositeDecorator?: CompositeDecorator;
 }
 
-
 const toolbar = createToolbar();
-const configStore: ConfigStore = new ConfigStore();
 
 export class EditorCore extends React.Component<EditorProps, EditorCoreState> {
+
+  public state: EditorCoreState;
+  public configStore: ConfigStore = new ConfigStore();
+
+  public refs: {
+    [string: string]: any;
+    editor?: EditorCore;
+  };
   
-    static ToEditorState(text: string): EditorState {
-        const createEmptyContentState = ContentState.createFromText(decodeContent(text) || "");
-        const editorState = EditorState.createWithContent(createEmptyContentState);
-        return EditorState.forceSelection(editorState, createEmptyContentState.getSelectionAfter());
-    }
-
-  public static GetText = exportText;
-
-  public static GetHTML = GetHTML(configStore);
-  public Reset(): void {
-    this.setEditorState(
-      EditorState.push(this.state.editorState, this.props.defaultValue.getCurrentContent(), "reset-editor")
-    );
-  }
-
-  public SetText(text: string) : void {
-    const createTextContentState = ContentState.createFromText(text || "");
-    const editorState = EditorState.push(this.state.editorState, createTextContentState, "editor-setText");
-    this.setEditorState(
-      EditorState.moveFocusToEnd(editorState)
-    , true);
-  }
-
-  public state : EditorCoreState;
-  private plugins: any;
+  private manager: EditorService = new EditorService();
+  private plugins: List<Plugin>;
   private controlledMode: boolean;
+  private controls: {
+    editor?: Editor;
+  }
 
   constructor(props: EditorProps) {
     super(props);
+
+    this.controls = {
+      editor: null
+    };
+
     this.plugins = List(List(props.plugins).flatten(true));
 
-    let editorState;
-
+    let editorState: EditorState = null;
     if (props.value !== undefined) {
       if (props.value instanceof EditorState) {
         editorState = props.value || EditorState.createEmpty();
@@ -118,169 +109,40 @@ export class EditorCore extends React.Component<EditorProps, EditorCoreState> {
     }
   }
 
-  refs: {
-    [string: string]: any;
-    editor?: any;
-  };
-
-  public static defaultProps = {
-    multiLines: true,
-    plugins: [],
-    prefixCls: "rc-editor-core",
-    pluginConfig: {},
-    toolbars: [],
-    spilitLine: "enter",
-  };
-  
-  public reloadPlugins(): Array<Plugin> {
-    return this.plugins && this.plugins.size ? this.plugins.map((plugin : Plugin) => {
-      // 　如果插件有 callbacks 方法,则认为插件已经加载。
-      if (plugin.callbacks) {
-        return plugin;
-      }
-      // 如果插件有 constructor 方法,则构造插件
-      if (plugin.hasOwnProperty("constructor")) {
-        const pluginConfig = objectAssign(this.props.pluginConfig, plugin.config);
-        return plugin.constructor(pluginConfig);
-      }
-      // else 无效插件
-      console.warn(">> 插件: [", plugin.name , "] 无效。插件或许已经过期。");
-      return false;
-    }).filter(plugin => plugin).toArray() : [];
+  focus = () => {
+    this.controls.editor.focus();
+    var text: string = this.manager.getTextSelection(this);
+    console.log(text);
   }
 
-  public componentWillMount() : void {
-    const plugins = this.initPlugins().concat([toolbar]);
-    const customStyleMap = {};
-    const customBlockStyleMap = {};
-
-    let customBlockRenderMap: Map<String, DraftBlockRenderConfig> = Map(DefaultDraftBlockRenderMap);
-
-    // initialize compositeDecorator
-    const compositeDecorator = new CompositeDecorator(
-      plugins.filter(plugin => plugin.decorators !== undefined)
-        .map(plugin => plugin.decorators)
-        .reduce((prev, curr) => prev.concat(curr), [])
-    );
-
-    // initialize Toolbar
-    const toolbarPlugins = List(plugins.filter(plugin => !!plugin.component && plugin.name !== "toolbar"));
-
-    // load inline styles...
-    plugins.forEach( plugin => {
-      const { styleMap, blockStyleMap, blockRenderMap } = plugin;
-      if (styleMap) {
-        for (const key in styleMap) {
-          if (styleMap.hasOwnProperty(key)) {
-            customStyleMap[key] = styleMap[key];
-          }
-        }
-      }
-      if (blockStyleMap) {
-        for (const key in blockStyleMap) {
-          if (blockStyleMap.hasOwnProperty(key)) {
-            customBlockStyleMap[key] = blockStyleMap[key];
-            customBlockRenderMap = customBlockRenderMap.set(key, {
-              element: null,
-            });
-          }
-        }
-      }
-
-      if (blockRenderMap) {
-        for (const key in blockRenderMap) {
-          if (blockRenderMap.hasOwnProperty(key)) {
-            customBlockRenderMap = customBlockRenderMap.set(key, blockRenderMap[key]);
-          }
-        }
-      }
-    });
-    configStore.set("customStyleMap", customStyleMap);
-    configStore.set("customBlockStyleMap", customBlockStyleMap);
-    configStore.set("blockRenderMap", customBlockRenderMap);
-    configStore.set("customStyleFn", this.customStyleFn.bind(this));
-
-    this.setState({
-      toolbarPlugins,
-      compositeDecorator,
-    });
-
-    this.setEditorState(EditorState.set(this.state.editorState,
-      { decorator: compositeDecorator }
-    ));
-
-  }
-  public componentWillReceiveProps(nextProps) {
-    if (this.controlledMode) {
-      const decorators = nextProps.value.getDecorator();
-
-      const editorState = decorators ?
-        nextProps.value :
-        EditorState.set(nextProps.value,
-          { decorator: this.state.compositeDecorator }
-        );
-      this.setState({
-        editorState,
-      });
+  handleKeyCommand = (command: String): boolean => {
+    if (this.props.multiLines) {
+      return this.eventHandle("handleKeyBinding", command);
     }
+
+    return command === "split-block";
   }
-  //  处理　value　
-  generatorDefaultValue(editorState: EditorState): EditorState {
-    const { defaultValue } = this.props;
-    if (defaultValue) {
-      return defaultValue;
+
+  handleKeyBinding = (ev: React.KeyboardEvent): any => {
+    if (this.props.onKeyDown) {
+      ev.ctrlKey = hasCommandModifier(ev);
+      const keyDownResult = this.props.onKeyDown(ev);
+      if (keyDownResult) {
+        return keyDownResult;
+      }
+
+      return getDefaultKeyBinding(ev);
     }
-    return editorState;
+
+    return getDefaultKeyBinding(ev);
   }
 
-  public getStyleMap(): Object {
-    return configStore.get("customStyleMap");
-  }
-  public setStyleMap(customStyleMap): void {
-    configStore.set("customStyleMap", customStyleMap);
-    this.render();
-  }
-
-  public initPlugins() : Array<any> {
-    const enableCallbacks = ["getEditorState", "setEditorState", "getStyleMap", "setStyleMap"];
-    return this.getPlugins().map(plugin => {
-      enableCallbacks.forEach( callbackName => {
-        if (plugin.callbacks.hasOwnProperty(callbackName)) {
-          plugin.callbacks[callbackName] = this[callbackName].bind(this);
-        }
-      });
-
-      return plugin;
-    });
-  }
-
-  public focus() : void {
-    this.refs.editor.focus();
-  }
-
-  public getPlugins(): Array<Plugin> {
-    return this.state.plugins.slice();
-  }
-
-  public getEventHandler(): Object {
-    const enabledEvents = ["onUpArrow", "onDownArrow", "handleReturn", "onFocus", "onBlur"];
-    const eventHandler = {};
-    enabledEvents.forEach(event => {
-      eventHandler[event] = this.generatorEventHandler(event);
-    });
-    return eventHandler;
-  }
-
-  getEditorState() : EditorState {
-    return this.state.editorState;
-  }
-
-  setEditorState(editorState: EditorState, focusEditor: boolean = false) : void {
-    let newEditorState = editorState;
+  setEditorState = (editorState: EditorState, focusEditor: boolean = false): void => {
+    let newEditorState: EditorState = editorState;
 
     this.getPlugins().forEach(plugin => {
       if (plugin.onChange) {
-        const updatedEditorState = plugin.onChange(newEditorState);
+        const updatedEditorState: EditorState = plugin.onChange(newEditorState);
         if (updatedEditorState) {
           newEditorState = updatedEditorState;
         }
@@ -295,37 +157,183 @@ export class EditorCore extends React.Component<EditorProps, EditorCoreState> {
     }
   }
 
-  public handleKeyBinding(ev: React.KeyboardEvent): any {
-    if (this.props.onKeyDown) {
-      ev.ctrlKey = hasCommandModifier(ev);
-      const keyDownResult = this.props.onKeyDown(ev);
-      if (keyDownResult) {
-        return keyDownResult;
-      }
-
-      return getDefaultKeyBinding(ev);
-    }
-
-    return getDefaultKeyBinding(ev);
-  }
-
-  public handleKeyCommand(command: String): boolean {
-    if (this.props.multiLines) {
-      return this.eventHandle("handleKeyBinding", command);
-    }
-
-    return command === "split-block";
-  }
-
-  public getBlockStyle(contentBlock): String {
-    const customBlockStyleMap = configStore.get("customBlockStyleMap");
+  getBlockStyle = (contentBlock: ContentBlock): string => {
+    const customBlockStyleMap = this.configStore.get("customBlockStyleMap");
     const type = contentBlock.getType();
     if (customBlockStyleMap.hasOwnProperty(type)) {
       return customBlockStyleMap[type];
     }
   }
 
-  eventHandle(eventName, ...args) : boolean {
+  public getEditorState(text: string): EditorState {
+    return this.manager.ToEditorState(text);
+  }
+
+  public getText(encode: boolean = false): string {
+    return this.manager.getText(this, encode);
+  }
+
+  public getHtml(encode: boolean = false): string {
+    return this.manager.getHtml(this, encode);
+  }
+
+  public Reset(): void {
+    this.setEditorState(
+      EditorState.push(this.state.editorState, this.props.defaultValue.getCurrentContent(), "reset-editor")
+    );
+  }
+
+  public SetText(text: string): void {
+    const createTextContentState = ContentState.createFromText(text || "");
+    const editorState = EditorState.push(this.state.editorState, createTextContentState, "editor-setText");
+    this.setEditorState(
+      EditorState.moveFocusToEnd(editorState)
+      , true);
+  }
+
+  // public static defaultProps = {
+  //   multiLines: true,
+  //   plugins: [],
+  //   prefixCls: "rc-editor-core",
+  //   pluginConfig: {},
+  //   toolbars: [],
+  //   spilitLine: "enter",
+  // };
+  
+  public reloadPlugins(): Array<Plugin> {
+    return this.plugins && this.plugins.size ? this.plugins.map((plugin: Plugin) => {
+      if (plugin.callbacks) {
+        return plugin;
+      }
+
+      if (plugin.hasOwnProperty("constructor")) {
+        const pluginConfig = objectAssign(this.props.pluginConfig, plugin.config);
+        return plugin.constructor(pluginConfig);
+      }
+
+      console.warn(">> Load Plugin: [", plugin.name, "]");
+      return false;
+    }).filter(plugin => plugin).toArray() : [];
+  }
+
+  public componentWillMount(): void {
+    // const plugins = this.initPlugins().concat([toolbar]);
+    const plugins:Array<Plugin> = this.initPlugins();
+    const customStyleMap = {};
+    const customBlockStyleMap = {};
+
+    let customBlockRenderMap: Map<String, DraftBlockRenderConfig> = Map(DefaultDraftBlockRenderMap);
+
+    // Initialize compositeDecorator
+    const compositeDecorator: CompositeDecorator = new CompositeDecorator(
+      plugins.filter(plugin => plugin.decorators !== undefined)
+        .map(plugin => plugin.decorators)
+        .reduce((prev, curr) => prev.concat(curr), [])
+    );
+
+    // Initialize Toolbar
+    const toolbarPlugins:List<Plugin> = List<Plugin>(plugins.filter(plugin => !!plugin.component && plugin.name !== "toolbar"));
+
+    // Load inline styles...
+    // plugins.forEach(plugin => {
+    //   const { styleMap, blockStyleMap, blockRenderMap } = plugin;
+    //   if (styleMap) {
+    //     for (const key in styleMap) {
+    //       if (styleMap.hasOwnProperty(key)) {
+    //         customStyleMap[key] = styleMap[key];
+    //       }
+    //     }
+    //   }
+    //   if (blockStyleMap) {
+    //     for (const key in blockStyleMap) {
+    //       if (blockStyleMap.hasOwnProperty(key)) {
+    //         customBlockStyleMap[key] = blockStyleMap[key];
+    //         customBlockRenderMap = customBlockRenderMap.set(key, {
+    //           element: null,
+    //         });
+    //       }
+    //     }
+    //   }
+
+    //   if (blockRenderMap) {
+    //     for (const key in blockRenderMap) {
+    //       if (blockRenderMap.hasOwnProperty(key)) {
+    //         customBlockRenderMap = customBlockRenderMap.set(key, blockRenderMap[key]);
+    //       }
+    //     }
+    //   }
+    // });
+
+    this.configStore.set("customStyleMap", customStyleMap);
+    this.configStore.set("customBlockStyleMap", customBlockStyleMap);
+    this.configStore.set("blockRenderMap", customBlockRenderMap);
+    this.configStore.set("customStyleFn", this.customStyleFn.bind(this));
+
+    this.setState({
+      toolbarPlugins,
+      compositeDecorator,
+    });
+
+    this.setEditorState(EditorState.set(this.state.editorState, { decorator: compositeDecorator }));
+  }
+
+  public componentWillReceiveProps(nextProps: EditorProps) {
+    if (this.controlledMode) {
+      const decorators = nextProps.value.getDecorator();
+      const editorState = decorators
+        ? nextProps.value
+        : EditorState.set(nextProps.value, { decorator: this.state.compositeDecorator });
+      this.setState({
+        editorState,
+      });
+    }
+  }
+
+  //  处理　value　
+  generatorDefaultValue(editorState: EditorState): EditorState {
+    const { defaultValue } = this.props;
+    if (defaultValue) {
+      return defaultValue;
+    }
+    return editorState;
+  }
+
+  public getStyleMap(): Object {
+    return this.configStore.get("customStyleMap");
+  }
+  
+  public setStyleMap(customStyleMap): void {
+    this.configStore.set("customStyleMap", customStyleMap);
+    this.render();
+  }
+
+  public initPlugins(): Array<Plugin> {
+    const enableCallbacks: Array<string> = ["getEditorState", "setEditorState", "getStyleMap", "setStyleMap"];
+    return this.getPlugins().map(plugin => {
+      enableCallbacks.forEach(callbackName => {
+        if (plugin.callbacks.hasOwnProperty(callbackName)) {
+          plugin.callbacks[callbackName] = this[callbackName].bind(this);
+        }
+      });
+
+      return plugin;
+    });
+  }
+
+  public getPlugins(): Array<Plugin> {
+    return this.state.plugins.slice();
+  }
+
+  public getEventHandler(): Object {
+    const enabledEvents = ["onUpArrow", "onDownArrow", "handleReturn", "onFocus", "onBlur", "onMouseUp"];
+    const eventHandler = {};
+    enabledEvents.forEach(event => {
+      eventHandler[event] = this.generatorEventHandler(event);
+    });
+    return eventHandler;
+  }
+
+  eventHandle(eventName, ...args): boolean {
     const plugins = this.getPlugins();
     for (let i = 0; i < plugins.length; i++) {
       const plugin = plugins[i];
@@ -338,15 +346,16 @@ export class EditorCore extends React.Component<EditorProps, EditorCoreState> {
         }
       }
     }
-    return this.props.hasOwnProperty(eventName) && this.props[eventName](...args) === true ;
+    return this.props.hasOwnProperty(eventName) && this.props[eventName](...args) === true;
   }
 
-  generatorEventHandler(eventName) : Function {
+  generatorEventHandler(eventName): Function {
     return (...args) => {
       return this.eventHandle(eventName, ...args);
     };
   }
-  customStyleFn(styleSet) : Object {
+
+  customStyleFn(styleSet): Object {
     if (styleSet.size === 0) {
       return {};
     }
@@ -363,34 +372,34 @@ export class EditorCore extends React.Component<EditorProps, EditorCoreState> {
     }
     return resultStyle;
   }
-  render() {
-    const { prefixCls, toolbars, style } = this.props;
-    const { editorState, toolbarPlugins } = this.state;
-    const customStyleMap = configStore.get("customStyleMap");
-    const blockRenderMap = configStore.get("blockRenderMap");
+
+  render(): JSX.Element {
+    const { prefixCls, style } = this.props;
+    const { editorState } = this.state;
+    const customStyleMap = this.configStore.get("customStyleMap");
+    const blockRenderMap = this.configStore.get("blockRenderMap");
     const eventHandler = this.getEventHandler();
-    const Toolbar = toolbar.component;
-    return (<div
-      style={style}
-      className={`${prefixCls}-editor`}
-      onClick={this.focus.bind(this)}
-    >
-     
-      <div className={`${prefixCls}-editor-wrapper`}  style={style}>
-        <Editor
-          {...this.props}
-          {...eventHandler}
-          ref="editor"
-          customStyleMap={customStyleMap}
-          editorState={editorState}
-          handleKeyCommand={this.handleKeyCommand.bind(this)}
-          keyBindingFn={this.handleKeyBinding.bind(this)}
-          onChange={this.setEditorState.bind(this)}
-          blockStyleFn={this.getBlockStyle.bind(this)}
-          blockRenderMap={blockRenderMap}
-        />
-        {this.props.children}
-      </div>
-    </div>);
+    return (
+      <Paper>
+        <div style={style}
+          className={`${prefixCls}-editor`}
+          onClick={this.focus}>
+          <div className={`${prefixCls}-editor-wrapper`} style={style}>
+            <Editor  
+              {...this.props}
+              {...eventHandler}
+              ref={ref => this.controls.editor = ref}
+              customStyleMap={customStyleMap}
+              editorState={editorState}
+              handleKeyCommand={this.handleKeyCommand}              
+              keyBindingFn={this.handleKeyBinding}
+              onChange={this.setEditorState}
+              blockStyleFn={this.getBlockStyle}
+              blockRenderMap={blockRenderMap} />
+            {this.props.children}
+          </div>
+        </div>
+      </Paper>
+    );
   }
 }

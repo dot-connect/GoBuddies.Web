@@ -40,6 +40,8 @@ const App = () => (
 );
 
 ReactDOM.render((
-    <Editor/>
+    <MuiThemeProvider muiTheme={muiTheme}>
+            <Editor/>
+     </MuiThemeProvider>   
 ), document.getElementById("content"));
 

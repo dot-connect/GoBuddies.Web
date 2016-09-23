@@ -1,15 +1,17 @@
 /// <reference path="../../../../typings/index.d.ts"/>
 
-import { EditorState, Entity } from "draft-js";
+import { Entity, ContentState, BlockMap } from "draft-js";
+import { EditorCore } from "../EditorCore/Editor";
 import { ITextProvider } from "../interface";
 
 export default class TextProvider implements ITextProvider {
-    public exportText(editorState: EditorState, encode: boolean): string {
-        const content = editorState.getCurrentContent();
-        const blockMap = content.getBlockMap();
+
+    public export(editor: EditorCore, encode: boolean): string {
+        let content: ContentState = editor.state.editorState.getCurrentContent();
+        let blockMap: BlockMap = content.getBlockMap();
         return blockMap.map(block => {
-            let resultText = "";
-            let lastPosition = 0;
+            let resultText: string = "";
+            let lastPosition: number = 0;
             const text = block.getText();
             block.findEntityRanges(function (character) {
                 return !!character.getEntity();
@@ -21,11 +23,11 @@ export default class TextProvider implements ITextProvider {
                 lastPosition = end;
             });
             resultText += text.slice(lastPosition);
-            return encode ? this.encodeContent(resultText) : resultText;
+            return encode ? this.encode(resultText) : resultText;
         }).join(encode ? "<br />\n" : "\n");
     }
-
-    private encodeContent(text: string): string {
+    
+    public encode(text: string): string {
         return text
             .split("&").join("&amp;")
             .split("<").join("&lt;")
@@ -34,7 +36,7 @@ export default class TextProvider implements ITextProvider {
             .split("\n").join("<br />" + "\n");
     }
 
-    private decodeContent(text: string): string {
+    public decodeContent(text: string): string {
         return text.split("<br />" + "\n").join("\n");
     }
 }
