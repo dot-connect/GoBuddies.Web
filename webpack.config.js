@@ -1,86 +1,69 @@
-var path = require("path");
-var webpack = require('webpack');
+'use strict';
 
-var nodeModulesPath = path.join(__dirname, 'node_modules');
-var isProduction = process.env.NODE_ENV == "production";
+const path = require('path');
+const proxy = require('./server/webpack-dev-proxy');
+const loaders = require('./webpack/loaders');
+var plugins = require('./webpack/plugins');
+const postcssInit = require('./webpack/postcss');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-var config = {
-  // entry points - each will produce one bundled js file and one css file if there is any css in dependency tree
-  entry: {
-    vendors: [
-      'react',
-      'react-dom',
-      'babel-polyfill',
-       path.join(__dirname, 'babel', 'babelhelpers.js'),
-       path.join(__dirname, 'babel', 'babelOldIE.js'),
-    ],
-    app: [
-      path.join(__dirname, 'App', 'main.tsx')
-    ]
-  },
+const applicationEntries = process.env.NODE_ENV === 'development'
+  ? [ 'webpack-hot-middleware/client?reload=true' ]
+  : [ ];
 
-  // This is path to loaders
-  resolveLoader: {
-    root: nodeModulesPath
-  },
-
-  resolve: {
-    extensions: ['', '.js', '.jsx', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.css', '.less'], 
-    alias: {
-       'react$': path.join(nodeModulesPath, 'react', 'react.js'),
-       'react-dom': path.join(nodeModulesPath, 'react-dom', 'index.js'),
-       'babel-polyfill': path.join(nodeModulesPath, 'babel-polyfill', 'lib', 'index.js'),
-    }
-  },
+plugins.push(new ExtractTextPlugin("[name].css"));
+module.exports = {
+  entry: ['./src/main.tsx'].concat(applicationEntries),
 
   output: {
-      path: path.join(__dirname, 'build'),
-      filename: '[name]_[chunkhash].js'
+    path: path.join(__dirname, 'dist'),
+    filename: '[name].[hash].js',
+    publicPath: '/',
+    sourceMapFilename: '[name].[hash].js.map',
+    chunkFilename: '[id].chunk.js',
   },
- 
+
+  devtool: process.env.NODE_ENV === 'production' ?
+    'source-map' :
+    'inline-source-map',
+
+  resolve: {
+    extensions: ['', '.js', '.jsx', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.css', '.less']
+  },
+
+  plugins: plugins,
+
+  devServer: {
+    historyApiFallback: { index: '/' },
+    proxy: Object.assign({}, proxy(), { '/api/*': 'http://localhost:3000' }),
+  },
+
   module: {
-    preLoaders: [
-      { test: /\.tsx?$/, loader: "tslint", include: path.resolve(__dirname, "App") },
-    ],
-    noParse: [],
+    // preLoaders: [
+    //   loaders.tslint,
+    // ],
     loaders: [
-      // TODO remove crazy require when https://github.com/babel/babel-loader/issues/166 is fixed.
+      loaders.tsx,
+      loaders.html,
+      loaders.css,
+      loaders.svg,
+      loaders.eot,
+      loaders.woff,
+      loaders.woff2,
+      loaders.ttf,
+      loaders.json,
       {
-        test: /\.tsx?$/,
-        loader: 'babel?cacheDirectory,plugins[]=' + require.resolve(path.join(nodeModulesPath, 'babel-plugin-external-helpers-2')) +
-                ',presets[]=' + require.resolve(path.join(nodeModulesPath, 'babel-preset-es2015-loose')) +
-                '!ts-loader?configFileName=tsconfig.webpack.json',
-        include: path.resolve(__dirname, "App")
-      },
-      { test: /\.css$/,  loader: "style-loader!css-loader?minimize", include: path.resolve(__dirname, "App") },
-      { test: /\.less$/, exclude: /\.module\.less$/, loader: "style-loader!css-loader?minimize!less-loader?compress", include: path.resolve(__dirname, "App") },
-      { test: /\.module\.less$/,
-        loader: "style-loader!css-loader?minimize&modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!less-loader?-compress",
-        include: path.resolve(__dirname, "App") },
-      { test: /\.(jpg|png|woff|eot|ttf|svg|gif)$/, loader: "file-loader?name=[name]_[hash].[ext]", include: path.resolve(__dirname, "App") }
-    ]
+        test: /\.less$/,
+        loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
+      }
+    ],
   },
 
-  plugins: [
-    new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors_[chunkhash].js')
-  ],
-
-  tslint: {
-    // Rules are in tslint.json
-    emitErrors: false, // false = WARNING for webpack, true = ERROR for webpack
-    formattersDirectory: path.join(nodeModulesPath, 'tslint-loader', 'formatters')
+  externals: {
+    'react/lib/ReactContext': 'window',
+    'react/lib/ExecutionEnvironment': true,
+    'react/addons': true,
   },
+
+  postcss: postcssInit,
 };
-
-if (isProduction) {
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-     compress: {
-        warnings: false
-    }
-  }));
-  config.plugins.push(new webpack.DefinePlugin({
-    'process.env': {NODE_ENV: '"production"'}
-  }));
-}
-
-module.exports = config;

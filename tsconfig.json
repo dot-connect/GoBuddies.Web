@@ -7,21 +7,18 @@
     "sourceMap": true,
     "jsx": "react",
     "noImplicitAny": false,
-    "removeComments": false,
+    "removeComments": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "outDir": "bin"
   },
- "files": [
-    "typings/index.d.ts",
-    "App/main.tsx"
-  ],
-  "filesGlob": [
-    "App/**/*.tsx",
-    "App/**/*.ts"
-  ],
+  "awesomeTypescriptLoaderOptions": {
+    "useBabel": true,
+    "useCache": false,
+    "emitRequireType": false
+  },
   "exclude": [
-      "node_modules/**/*.*",
-    "typings/index.d.ts"
+    "node_modules",
+    "dist"
   ]
 }

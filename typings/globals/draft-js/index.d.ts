@@ -740,6 +740,7 @@ declare namespace Draft {
                 getStyle(): DraftInlineStyle;
                 getEntity(): string;
                 hasStyle(style: string): boolean;
+                get(a: string): any;
             }
 
             interface CharacterMetadataConfig {

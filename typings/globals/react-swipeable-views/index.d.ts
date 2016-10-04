@@ -26,7 +26,7 @@ declare namespace ReactSwipeableViews {
     export class SwipeableViews extends React.Component<SwipeableViewsProps, SwipeableViewsState> {
     }
 
-     var autoPlay: (component: any) => any;
+    var autoPlay: (component: any) => any;
 }
 
 declare module 'react-swipeable-views' {
